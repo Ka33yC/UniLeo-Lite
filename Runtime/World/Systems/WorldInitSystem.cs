@@ -6,22 +6,19 @@ using UnityEngine;
 namespace Voody.UniLeo.Lite
 {
     /// This class handle global init to ECS World
-
 #if ENABLE_IL2CPP
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption (Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption (Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
 #endif
-
     class WorldInitSystem : IEcsPreInitSystem, IEcsRunSystem, IEcsDestroySystem
     {
         private EcsPool<InstantiateComponent> _instantiatePool;
         private EcsFilter _filter;
         private EcsWorld _baseWorld;
 
-        public void PreInit(EcsSystems systems)
+        public void PreInit(IEcsSystems systems)
         {
-            var convertableGameObjects =
-                GameObject.FindObjectsOfType<ConvertToEntity>();
+            var convertableGameObjects = GameObject.FindObjectsOfType<ConvertToEntity>();
             // Iterate throught all gameobjects, that has ECS Components
             foreach (var convertable in convertableGameObjects)
             {
@@ -31,12 +28,11 @@ namespace Voody.UniLeo.Lite
             _baseWorld = systems.GetWorld();
             _filter = _baseWorld.Filter<InstantiateComponent>().End();
             _instantiatePool = _baseWorld.GetPool<InstantiateComponent>();
-
             // After adding all entitites from the begining of the scene, we need to handle global World value
             WorldHandler.Init(_baseWorld);
         }
 
-        public void Run(EcsSystems systems)
+        public void Run(IEcsSystems systems)
         {
             foreach (var i in _filter)
             {
@@ -50,13 +46,13 @@ namespace Voody.UniLeo.Lite
             }
         }
 
-        public void Destroy(EcsSystems systems)
+        public void Destroy(IEcsSystems systems)
         {
             WorldHandler.Destroy();
         }
 
         // Creating New Entity with components function
-        private void AddEntity(GameObject gameObject, EcsSystems systems, String worldName)
+        private void AddEntity(GameObject gameObject, IEcsSystems systems, String worldName)
         {
             var nameValue = worldName == "" ? null : worldName;
             var spawnWorld = systems.GetWorld(nameValue);
